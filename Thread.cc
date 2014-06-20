@@ -7,6 +7,16 @@
 
 namespace netfish {
 
+//线程变量来cache tid
+__thread pid_t t_cachedTid;
+
+pid_t tid()
+{
+    if (!t_cachedTid) {
+        t_cachedTid = getpid();
+    }
+    return t_cachedTid;
+}
 
 //依据系统调用来得到pid
 pid_t getpid()
@@ -18,8 +28,8 @@ class ThreadData : public boost::noncopyable{
     public:
         typedef netfish::Thread::ThreadFunc ThreadFunc;
         explicit ThreadData(const ThreadFunc & func, boost::shared_ptr<pid_t> & tid)
-            :func_(func), 
-            wkTid_(tid)
+            : wkTid_(tid),
+            func_(func)
         {}
 
         boost::weak_ptr<pid_t> wkTid_;
@@ -47,6 +57,7 @@ void * runInThread(void * obj)
 {
     ThreadData * data = reinterpret_cast<ThreadData *>(obj);
     data->func_();
+    return NULL;
 }
 
 void Thread::start()
