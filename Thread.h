@@ -17,6 +17,7 @@ public:
     ~Thread();
     void start();
     void join();
+    pid_t tid() const {return *tid_;}
     void quit();
 
 private:

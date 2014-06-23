@@ -1,13 +1,14 @@
 //azhe
 //liuyuanzhe123@126.com
 #include "Thread.h"
+#include "Logging.h"
 #include <sys/syscall.h>
 #include <sys/unistd.h>
 #include <boost/weak_ptr.hpp>
 
 namespace netfish {
 
-//线程变量来cache tid
+//用线程变量来cache tid
 __thread pid_t t_cachedTid;
 
 pid_t tid()
@@ -41,6 +42,7 @@ Thread::Thread(const ThreadFunc& func, const std::string & name)
     name_(name),
     tid_(new pid_t(0)),
     started_(false),
+    joined_(false),
     pthreadId_(0)
 {
     
@@ -56,7 +58,13 @@ Thread::~Thread()
 void * runInThread(void * obj)
 {
     ThreadData * data = reinterpret_cast<ThreadData *>(obj);
+    boost::shared_ptr<pid_t> shTid = data->wkTid_.lock();
+    if (shTid) {
+        *shTid = netfish::tid();    //记录tid
+        shTid.reset();
+    }
     data->func_();
+    delete data;
     return NULL;
 }
 
@@ -74,6 +82,8 @@ void Thread::start()
 
 void Thread::join()
 {
+    assert(started_);
+    assert(!joined_);
     if (pthreadId_) {
         pthread_join(pthreadId_, NULL);
         joined_ = true;
