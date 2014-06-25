@@ -16,6 +16,11 @@ public:
         //return __sync_val_compare_and_swap(&val_, 0, 0);
     }
 
+    T getAndSet(T newValue)
+    {
+        return __sync_lock_test_and_set(&val_, newValue);
+    }
+
     T getAndAdd(T x)
     {
         return __sync_fetch_and_add(&val_, x);
@@ -59,6 +64,7 @@ public:
     {
         getAndDecrement();
     }
+
 
 private:
     T val_;
