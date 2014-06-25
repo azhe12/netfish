@@ -1,16 +1,39 @@
 #include "Thread.h"
+#include <iostream>
+#include "Atomic.h"
 #include "Logging.h"
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
+#include <vector>
+//int sum = 0;
+
+netfish::AtomicInt32 sum;
 
 void func()
 {
-    LOG_INFO("Pid: %d run func", netfish::getpid());
+    int loop = 2;
+    for (int i = 0; i < loop; i++) {
+        LOG_INFO("sum = %d", sum.getAndIncrement());
+        //LOG_INFO("i = %d ", i);
+    }
 }
-int main()
+
+int main(int argc, char ** argv)
 {
-    LOG_INFO("Pid: %d main", netfish::getpid());
-    netfish::Thread thread(func);
-    thread.start();
-    thread.join();
+    int numT = 1000;
+    if (argc > 1)
+        numT = atoi(argv[1]);
+
+    std::vector<netfish::Thread *> queue;
+
+    for (int i = 0; i < numT; i++) {
+        netfish::Thread * t = new netfish::Thread(func);
+        queue.push_back(t);
+        t->start();
+    }
+    for (int i = 0; i < numT; i++) {
+        queue[i]->join();
+        delete queue[i];
+    }
 }

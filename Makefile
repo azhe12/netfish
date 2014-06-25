@@ -1,4 +1,9 @@
-LIB_SRC=Thread.cc Timestamp.cc
+LIB_SRC= \
+		Thread.cc 		\
+		Timestamp.cc 	\
+		Channel.cc 		\
+		EventLoop.cc 	\
+		EPoller.cc
 
 BINARIES=testThread
 
