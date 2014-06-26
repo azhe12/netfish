@@ -40,14 +40,14 @@ inline uint16_t networkToHost16(uint64_t net16)
 
 //create nonblocking Socket fd
 //abort if failed.
-int createNonblockingOrDie();
+int createNonBlockingOrDie();
 
 int connect(int sockfd, const struct sockaddr_in & addr);
 void bindOrDie(int sockfd, const struct sockaddr_in & addr);
 void listenOrDie(int sockfd);
 int accept(int sockfd, struct sockaddr_in * addr);
 void close(int sockfd);
-void shutdownWrite(int sockfd);
+int shutdownWrite(int sockfd);
 
 //根据addr生成形如"ip:port" 的string
 void toHostPort(char * buf, size_t size, 

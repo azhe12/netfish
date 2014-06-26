@@ -2,6 +2,7 @@
 #include "InetAddress.h"
 #include "Socket.h"
 #include "SocketsOps.h"
+#include "Logging.h"
 
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -44,7 +45,8 @@ int Socket::setReuseAddr(bool on)
 
 int Socket::shutdownWrite()
 {
-    sockets::shutdownWrite(sockfd_);
+    int ret = sockets::shutdownWrite(sockfd_);
+    return ret;
 }
 
 int Socket::setTcpNoDelay(bool on)

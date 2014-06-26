@@ -44,7 +44,7 @@ void setNonBlockAndCloseOnExec(int sockfd)
 
 }
 
-int sockets::createNonblockingOrDie()
+int sockets::createNonBlockingOrDie()
 {
     int sockfd = ::socket(AF_INET,
                         SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 
@@ -121,11 +121,13 @@ void sockets::close(int sockfd)
     }
 }
 
-void sockets::shutdownWrite(int sockfd)
+int sockets::shutdownWrite(int sockfd)
 {
-    if (::shutdown(sockfd, SHUT_WR) < 0) {
+    int ret = 0;
+    if ((ret = ::shutdown(sockfd, SHUT_WR)) < 0) {
         LOG_ERROR("sockets::shutdownWrite");
     }
+    return ret;
 }
 
 void sockets::toHostPort(char * buf, size_t size,
@@ -189,17 +191,3 @@ bool sockets::isSelfConnect(int sockfd)
     return localaddr.sin_port == peeraddr.sin_port && 
            localaddr.sin_addr.s_addr == peeraddr.sin_addr.s_addr;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

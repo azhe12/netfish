@@ -6,6 +6,7 @@
 #include <poll.h>
 #include <sys/epoll.h>
 #include <errno.h>
+#include <string.h>
 
 using namespace netfish;
 
@@ -120,20 +121,8 @@ void EPoller::update(int operation, Channel * channel)
     event.data.ptr = channel;
     int fd = channel->fd();
     if (epoll_ctl(epollfd_, operation, fd, &event) < 0) {
-        LOG_ERROR("EPoller::update - epoll_ctl op=%d fd=%d failed!",
-                    operation, fd);
+        LOG_ERROR("EPoller::update - epoll_ctl op=%d fd=%d failed, errno:%d %s",
+                    operation, fd, errno, strerror(errno));
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
