@@ -2,16 +2,47 @@
 #include "Logging.h"
 #include "EventLoop.h"
 #include "EPoller.h"
+#include "Channel.h"
+#include <signal.h>
+#include <sys/eventfd.h>
+#include <boost/bind.hpp>
+
 using namespace netfish;
 
 __thread EventLoop * t_loopInThisThread = NULL; //线程全局变量，在线程创建时初始化
 const int kPollTimeMs = 10000;  //10s
 
+static int createEventfd()
+{
+    int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+    if (evtfd < 0) {
+        LOG_ERROR("Failed to createEventfd");
+        abort();
+    }
+    return evtfd;
+}
+
+//忽略SIGPIPE
+//由于多次对关闭的sockfd进行write会发生SIGPIPE, 导致server终止
+class IgnoreSigPipe
+{
+public:
+    IgnoreSigPipe()
+    {
+        ::signal(SIGPIPE, SIG_IGN);
+    }
+};
+
+IgnoreSigPipe initObj;
+
 EventLoop::EventLoop() 
     : looping_(false),
       quit_(false),
       threadId_(tid()),
-      poller_(new EPoller(this))
+      poller_(new EPoller(this)),
+      callingPendingFunctors_(false),
+      wakeupFd_(createEventfd()),
+      wakeupChannel_(this, wakeupFd_)
 {
     LOG_TRACE("EventLoop created %p in thread %d", this, threadId_);
     if (t_loopInThisThread) {   //一个thread中最多一个loop
@@ -20,10 +51,15 @@ EventLoop::EventLoop()
     } else {
         t_loopInThisThread = this;
     }
+    wakeupChannel_.setReadCallback(
+            boost::bind(&EventLoop::handleRead, this));
+    wakeupChannel_.enableReading();
 }
 
 EventLoop::~EventLoop() {
+    assert(!looping_);
     t_loopInThisThread = NULL;
+    ::close(wakeupFd_);
 }
 
 void EventLoop::loop()
@@ -40,6 +76,7 @@ void EventLoop::loop()
                 it != activeChannels_.end(); it++) {
             (*it)->handleEvent(pollReturnTime_);
         }
+        doPendingFunctors();
     }
     LOG_TRACE("EventLoop %p stop looping", this);
     looping_ = false;
@@ -48,6 +85,68 @@ void EventLoop::loop()
 void EventLoop::quit()
 {
     quit_ = true;
+    if (!isInLoopThread()) {
+        wakeup();
+    }
+}
+
+void EventLoop::runInLoop(const Functor& cb)
+{
+    if (isInLoopThread()) {
+        cb();
+    } else {
+        queueInLoop(cb);
+    }
+}
+
+void EventLoop::queueInLoop(const Functor& cb)
+{
+    {
+        MutexLockGuard lock(mutex_);
+        pendingFunctors_.push_back(cb);
+    }
+
+    //如果不在loopthread或者已经在执行pendingFunctor,则wakeup
+    if (!isInLoopThread() || callingPendingFunctors_) {
+        wakeup();
+    }
+}
+
+void EventLoop::wakeup()
+{
+    uint64_t one = 1;
+    ssize_t n = ::write(wakeupFd_, &one, sizeof one);
+    if (n != sizeof one) {
+        LOG_ERROR("EventLoop::wakeup() write %ld bytes instead of 8", n);
+    }
+}
+
+void EventLoop::handleRead()
+{
+    uint64_t one = 1;
+    //read will clear eventfd buffer
+    ssize_t n = ::read(wakeupFd_, &one, sizeof one);
+    if (n != sizeof one) {
+        LOG_ERROR("EventLoop::handleRead() reads %ld bytes instead of 8", n);
+    }
+}
+
+void EventLoop::doPendingFunctors()
+{
+    std::vector<Functor> functors;
+    callingPendingFunctors_ = true;
+    LOG_TRACE("EventLoop::doPendingFunctors()");
+
+    //swap到stack空间来 减少加锁时间
+    {
+        MutexLockGuard lock(mutex_);
+        pendingFunctors_.swap(functors);
+    }
+
+    for (size_t i = 0; i < functors.size(); i++) {
+        functors[i]();
+    }
+    callingPendingFunctors_ = true;
 }
 
 void EventLoop::updateChannel(Channel * channel)
