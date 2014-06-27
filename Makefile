@@ -12,7 +12,8 @@ LIB_SRC= \
 BINARIES=	\
 			testThread		\
 			testEventLoop	\
-			testAcceptor
+			testAcceptor	\
+			testChannel
 
 all:$(BINARIES)
 
@@ -21,6 +22,7 @@ include netfish.mk
 testThread:testThread.cc
 testEventLoop:testEventLoop.cc
 testAcceptor:testAcceptor.cc
+testChannel:testChannel.cc
 
 clean:
 	rm -rf $(BINARIES) a.out *.o
