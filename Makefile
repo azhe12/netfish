@@ -9,14 +9,16 @@ LIB_SRC= \
 		SocketsOps.cc	\
 		Acceptor.cc		\
 		Timer.cc		\
-		TimerQueue.cc
+		TimerQueue.cc	\
+		Buffer.cc
 
 BINARIES=	\
 			testThread		\
 			testEventLoop	\
 			testAcceptor	\
 			testChannel		\
-			testTimerQueue
+			testTimerQueue	\
+			testBuffer
 
 all:$(BINARIES)
 
@@ -27,6 +29,7 @@ testEventLoop:testEventLoop.cc
 testAcceptor:testAcceptor.cc
 testChannel:testChannel.cc
 testTimerQueue:testTimerQueue.cc
+testBuffer:testBuffer.cc
 
 clean:
 	rm -rf $(BINARIES) a.out *.o
