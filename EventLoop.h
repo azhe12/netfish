@@ -11,6 +11,9 @@
 #include "Atomic.h"
 #include "Logging.h"
 #include "MutexLock.h"
+#include "TimerId.h"
+#include "TimerQueue.h"
+#include "Callbacks.h"
 
 namespace netfish {
 class EPoller;
@@ -53,6 +56,19 @@ public:
     //wakeup loop poll来run pending cb
     void wakeup();
 
+    //timers相关api
+    //是thread safe
+    //run callback at time
+    TimerId runAt(const Timestamp& time, const TimerCallback& cb);
+
+    //run callback after @delay second
+    TimerId runAfter(double delay, const TimerCallback& cb);
+
+    //run callback every @inverval seconds
+    TimerId runEvery(double interval, const TimerCallback& cb);
+
+    void cancel(TimerId& timerId);
+
 private:
     void abortNotInLoopThread();
     void handleRead();  //wake up
@@ -75,6 +91,8 @@ private:
     Channel wakeupChannel_;
     MutexLock mutex_;
     std::vector<Functor> pendingFunctors_;
+    //for timer
+    boost::scoped_ptr<TimerQueue> timerQueue_;
 
 };
 }

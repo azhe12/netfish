@@ -1,11 +1,15 @@
 //azhe liuyuanzhe123@126.com
+#include <signal.h>
+#include <sys/eventfd.h>
+#include <boost/bind.hpp>
+
 #include "Logging.h"
 #include "EventLoop.h"
 #include "EPoller.h"
 #include "Channel.h"
-#include <signal.h>
-#include <sys/eventfd.h>
-#include <boost/bind.hpp>
+#include "TimerId.h"
+#include "TimerQueue.h"
+
 
 using namespace netfish;
 
@@ -42,7 +46,8 @@ EventLoop::EventLoop()
       poller_(new EPoller(this)),
       callingPendingFunctors_(false),
       wakeupFd_(createEventfd()),
-      wakeupChannel_(this, wakeupFd_)
+      wakeupChannel_(this, wakeupFd_),
+      timerQueue_(new TimerQueue(this))
 {
     LOG_TRACE("EventLoop created %p in thread %d", this, threadId_);
     if (t_loopInThisThread) {   //一个thread中最多一个loop
@@ -161,4 +166,24 @@ void EventLoop::removeChannel(Channel * channel)
     assert(channel->ownerLoop() == this);
     assertInLoopThread();
     poller_->removeChannel(channel);
+}
+
+TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb)
+{
+    return timerQueue_->addTimer(cb, time, 0.0);
+}
+
+TimerId EventLoop::runAfter(double delay, const TimerCallback& cb)
+{
+    return timerQueue_->addTimer(cb, addTime(Timestamp::now(), delay), 0.0);
+}
+
+TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
+{
+    return timerQueue_->addTimer(cb, addTime(Timestamp::now(), interval), interval);
+}
+
+void EventLoop::cancel(TimerId& timerId)
+{
+    timerQueue_->cancel(timerId);
 }
