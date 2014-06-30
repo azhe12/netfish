@@ -7,13 +7,16 @@ LIB_SRC= \
 		InetAddress.cc	\
 		Socket.cc		\
 		SocketsOps.cc	\
-		Acceptor.cc
+		Acceptor.cc		\
+		Timer.cc		\
+		TimerQueue.cc
 
 BINARIES=	\
 			testThread		\
 			testEventLoop	\
 			testAcceptor	\
-			testChannel
+			testChannel		\
+			testTimerQueue
 
 all:$(BINARIES)
 
@@ -23,6 +26,7 @@ testThread:testThread.cc
 testEventLoop:testEventLoop.cc
 testAcceptor:testAcceptor.cc
 testChannel:testChannel.cc
+testTimerQueue:testTimerQueue.cc
 
 clean:
 	rm -rf $(BINARIES) a.out *.o
