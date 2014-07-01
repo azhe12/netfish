@@ -10,7 +10,9 @@ LIB_SRC= \
 		Acceptor.cc		\
 		Timer.cc		\
 		TimerQueue.cc	\
-		Buffer.cc
+		Buffer.cc		\
+		EventLoopThread.cc	\
+		EventLoopThreadPool.cc
 
 BINARIES=	\
 			testThread		\
@@ -18,7 +20,8 @@ BINARIES=	\
 			testAcceptor	\
 			testChannel		\
 			testTimerQueue	\
-			testBuffer
+			testBuffer		\
+			testEventLoopThreadPool
 
 all:$(BINARIES)
 
@@ -30,6 +33,7 @@ testAcceptor:testAcceptor.cc
 testChannel:testChannel.cc
 testTimerQueue:testTimerQueue.cc
 testBuffer:testBuffer.cc
+testEventLoopThreadPool:testEventLoopThreadPool.cc
 
 clean:
 	rm -rf $(BINARIES) a.out *.o
