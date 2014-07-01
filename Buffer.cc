@@ -25,7 +25,7 @@ ssize_t Buffer::readFd(int fd, int* savedErrno)
     const ssize_t n = readv(fd, vec, 2);
     if (n < 0) {
         *savedErrno = errno;
-    } else if (n <= writable) {
+    } else if (n <= static_cast<ssize_t>(writable)) {
         writerIndex_ += n;
     } else {
         writerIndex_ = buffer_.size();

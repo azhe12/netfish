@@ -41,6 +41,7 @@ public:
     //internal use
     void updateChannel(Channel *);
     void removeChannel(Channel *);
+    pid_t threadId() { return threadId_; }
     void assertInLoopThread()
     {
         if (!isInLoopThread()) {
