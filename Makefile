@@ -11,8 +11,10 @@ LIB_SRC= \
 		Timer.cc		\
 		TimerQueue.cc	\
 		Buffer.cc		\
-		EventLoopThread.cc	\
-		EventLoopThreadPool.cc
+		EventLoopThread.cc		\
+		EventLoopThreadPool.cc	\
+		TcpConnection.cc		\
+		TcpServer.cc
 
 BINARIES=	\
 			testThread		\
@@ -21,7 +23,9 @@ BINARIES=	\
 			testChannel		\
 			testTimerQueue	\
 			testBuffer		\
-			testEventLoopThreadPool
+			testEventLoopThreadPool	\
+			testTcpServerDiscard	\
+			testTcpConnectionSend
 
 all:$(BINARIES)
 
@@ -34,6 +38,8 @@ testChannel:testChannel.cc
 testTimerQueue:testTimerQueue.cc
 testBuffer:testBuffer.cc
 testEventLoopThreadPool:testEventLoopThreadPool.cc
+testTcpServerDiscard:testTcpServerDiscard.cc
+testTcpConnectionSend:testTcpConnectionSend.cc
 
 clean:
 	rm -rf $(BINARIES) a.out *.o
