@@ -49,7 +49,7 @@ EventLoop::EventLoop()
       wakeupChannel_(this, wakeupFd_),
       timerQueue_(new TimerQueue(this))
 {
-    LOG_TRACE("EventLoop created %p in thread %d", this, threadId_);
+    LOG_TRACE("created %p in thread %d", this, threadId_);
     if (t_loopInThisThread) {   //一个thread中最多一个loop
         LOG_FATAL("Another EventLoop %p exisits in this thread %d", 
                 t_loopInThisThread, threadId_);
@@ -83,7 +83,7 @@ void EventLoop::loop()
         }
         doPendingFunctors();
     }
-    LOG_TRACE("EventLoop %p stop looping", this);
+    LOG_TRACE("%p stop looping", this);
     looping_ = false;
 }
 
@@ -140,7 +140,7 @@ void EventLoop::doPendingFunctors()
 {
     std::vector<Functor> functors;
     callingPendingFunctors_ = true;
-    LOG_TRACE("EventLoop::doPendingFunctors()");
+    //LOG_TRACE("EventLoop::doPendingFunctors()");
 
     //swap到stack空间来 减少加锁时间
     {
