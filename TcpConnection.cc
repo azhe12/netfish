@@ -70,7 +70,9 @@ void TcpConnection::handleRead(Timestamp receiveTime)
     int savedErrno = 0;
     ssize_t n = inputBuffer_.readFd(channel_->fd(), &savedErrno);
     if (n > 0) {
-        messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
+        if (messageCallback_) {
+            messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
+        }
     } else if (n == 0) {
         handleClose();
     } else {
@@ -137,7 +139,8 @@ void TcpConnection::sendInLoop(const std::string& message)
         nwrote = ::write(channel_->fd(), message.data(), message.size());
         if (nwrote >= 0) {
             if (static_cast<size_t>(nwrote) < message.size()) { //未写完
-                LOG_TRACE("I'm going to wrote more data");
+                LOG_TRACE("I'm going to wrote more data, remain %lu bytes",
+                        message.size() - nwrote);
             } else if (writeCompleteCallback_){    //写完
                 loop_->queueInLoop(boost::bind(writeCompleteCallback_, shared_from_this()));
             }
@@ -176,7 +179,8 @@ void TcpConnection::handleWrite()
                     shutdownInLoop();
                 }
             } else {
-                LOG_TRACE("I'm going to write more data");
+                LOG_TRACE("I'm going to write more data, remain %lu bytes",
+                        outputBuffer_.readableBytes());
             }
         } else {
             LOG_ERROR("TcpConnection::handleWrite");
