@@ -27,6 +27,7 @@ public:
     void setNewConnectionCallback(const NewConnectionCallback& cb)
     { newConnectionCallback_ = cb; }
 
+    const InetAddress& serverAddress() const { return serverAddr_; }
     //thread safe
     void start();
     //must in loop thread
