@@ -15,7 +15,8 @@ LIB_SRC= \
 		EventLoopThreadPool.cc	\
 		TcpConnection.cc		\
 		TcpServer.cc			\
-		Connector.cc
+		Connector.cc			\
+		TcpClient.cc
 
 BINARIES=	\
 			testThread		\
@@ -29,7 +30,7 @@ BINARIES=	\
 			testTcpConnectionSend	\
 			testTcpServerChargen	\
 			testConnector			\
-			test12
+			testTcpClient
 
 all:$(BINARIES)
 
@@ -46,7 +47,7 @@ testTcpServerDiscard:testTcpServerDiscard.cc
 testTcpConnectionSend:testTcpConnectionSend.cc
 testTcpServerChargen:testTcpServerChargen.cc
 testConnector:testConnector.cc
-test12:test12.cc
+testTcpClient:testTcpClient.cc
 
 clean:
 	rm -rf $(BINARIES) a.out *.o *.a
