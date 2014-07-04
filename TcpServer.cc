@@ -53,8 +53,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
     ++nextConnId_;
     std::string connName = name_ + buf;
 
-    LOG_INFO("TcpServer::newConnection [%s] - \
-              new connection [%s] from %s",
+    LOG_INFO("TcpServer::newConnection [%s] - new connection [%s] from %s",
               name_.c_str(),
               connName.c_str(),
               peerAddr.toHostPort().c_str());
