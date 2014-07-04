@@ -1,4 +1,5 @@
 LIB_SRC= \
+		Logging.cc		\
 		Thread.cc 		\
 		Timestamp.cc 	\
 		Channel.cc 		\
@@ -30,7 +31,8 @@ BINARIES=	\
 			testTcpConnectionSend	\
 			testTcpServerChargen	\
 			testConnector			\
-			testTcpClient
+			testTcpClient			\
+			pingPongServer
 
 all:$(BINARIES)
 
@@ -48,6 +50,7 @@ testTcpConnectionSend:testTcpConnectionSend.cc
 testTcpServerChargen:testTcpServerChargen.cc
 testConnector:testConnector.cc
 testTcpClient:testTcpClient.cc
+pingPongServer:pingPongServer.cc
 
 clean:
 	rm -rf $(BINARIES) a.out *.o *.a
