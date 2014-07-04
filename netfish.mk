@@ -1,4 +1,10 @@
 CXXFLAGS=-O0 -Wall -g -pthread
+LDFLAGS=-lnetfish -L.
 
-$(BINARIES):
-	g++ $(CXXFLAGS) -o $@ $(LIB_SRC) $(filter %.cc,$^)
+LIB_OBJ=$(patsubst %.cc,%.o,$(LIB_SRC))
+libnetfish.a:$(LIB_SRC)
+	g++ $(CXXFLAGS) -c $^
+	ar rcs $@ $(LIB_OBJ)
+
+$(BINARIES):libnetfish.a
+	g++ $(CXXFLAGS) -o $@ $(filter %.cc,$^) $(LDFLAGS)

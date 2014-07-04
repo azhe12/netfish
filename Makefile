@@ -49,4 +49,4 @@ testConnector:testConnector.cc
 test12:test12.cc
 
 clean:
-	rm -rf $(BINARIES) a.out *.o
+	rm -rf $(BINARIES) a.out *.o *.a
