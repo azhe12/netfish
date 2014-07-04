@@ -32,7 +32,8 @@ BINARIES=	\
 			testTcpServerChargen	\
 			testConnector			\
 			testTcpClient			\
-			pingPongServer
+			pingPongServer			\
+			pingPongClient
 
 all:$(BINARIES)
 
@@ -51,6 +52,7 @@ testTcpServerChargen:testTcpServerChargen.cc
 testConnector:testConnector.cc
 testTcpClient:testTcpClient.cc
 pingPongServer:pingPongServer.cc
+pingPongClient:pingPongClient.cc
 
 clean:
 	rm -rf $(BINARIES) a.out *.o *.a
