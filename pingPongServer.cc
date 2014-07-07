@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/resource.h>
 
 using namespace netfish;
 
@@ -29,13 +30,22 @@ void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
 
 int main(int argc, char* argv[])
 {
+
   if (argc < 4)
   {
     fprintf(stderr, "Usage: server <address> <port> <threads>\n");
   }
   else
   {
-    //LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
+    //max open file number
+    int maxFile = 65536;
+    struct rlimit rl;
+    rl.rlim_cur = rl.rlim_max = maxFile;
+    if (::setrlimit(RLIMIT_NOFILE, &rl) == -1)
+    {
+      perror("setrlimit");
+    }
+
     LOG_INFO("tid = %d", tid());
 
     const char* ip = argv[1];
