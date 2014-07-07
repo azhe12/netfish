@@ -1,13 +1,14 @@
+#include "Logging.h"
 #include "Thread.h"
 #include <iostream>
 #include "Atomic.h"
-#include "Logging.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 #include <vector>
 //int sum = 0;
 
+using namespace netfish;
 netfish::AtomicInt32 sum;
 
 void func()
