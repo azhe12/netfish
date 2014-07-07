@@ -12,8 +12,7 @@ int initLogLevel()
     if (levelStr) {
         int newLevel = atoi(levelStr);
         //TRACE:0 DEBUG:1 INFO:2
-        if (newLevel >= 0 && newLevel <= 2)
-            level = newLevel;
+        level = newLevel;
     }
     return level;
 }
